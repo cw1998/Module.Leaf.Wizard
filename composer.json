@@ -1,0 +1,29 @@
+{
+  "name": "rhubarbphp/module-leaf-wizard",
+  "description": "A pattern for making stepped wizards.",
+  "keywords": [
+    "mvp",
+    "presenter",
+    "leaf",
+    "wizard",
+    "rhubarb",
+    "php",
+    "framework"
+  ],
+  "homepage": "http://www.rhubarbphp.com/",
+  "license": "Apache-2.0",
+  "autoload": {
+    "psr-4": {
+      "Rhubarb\\Leaf\\Wizard\\": "src/"
+    }
+  },
+  "require": {
+    "rhubarbphp/module-leaf": "^1.1.0"
+  },
+  "config": {
+    "bin-dir": "bin/"
+  },
+  "require-dev": {
+    "codeception/codeception": "^2.0"
+  }
+}
