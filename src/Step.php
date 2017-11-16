@@ -45,7 +45,4 @@ abstract class Step extends Leaf
 
         $this->model->setStepData($stepData);
     }
-
-    protected abstract function getStepTitle();
-
 }

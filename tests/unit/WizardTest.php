@@ -1,6 +1,6 @@
 <?php
 
-namespace Rhubarb\Leaf\Wizard;
+namespace Rhubarb\Leaf\Wizard\Tests;
 
 use Rhubarb\Crown\Application;
 use Rhubarb\Crown\Request\Request;
