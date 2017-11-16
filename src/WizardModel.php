@@ -26,6 +26,13 @@ class WizardModel extends LeafModel
      */
     public $currentStepName;
 
+    /**
+     * Central binding source for wizard data.
+     *
+     * @var array
+     */
+    public $wizardData = [];
+
     public function __construct()
     {
         parent::__construct();

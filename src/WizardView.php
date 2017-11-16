@@ -11,6 +11,19 @@ class WizardView extends View
      */
     protected $model;
 
+    protected function createSubLeaves()
+    {
+        foreach($this->model->steps as $step){
+            $step->navigateToStepEvent->attachHandler(function($nextStep){
+                $this->model->navigateToStepEvent->raise($nextStep);
+            });
+
+            $this->registerSubLeaf($step);
+        }
+
+        parent::createSubLeaves();
+    }
+
     protected function printViewContent()
     {
         print $this->model->steps[$this->model->currentStepName];

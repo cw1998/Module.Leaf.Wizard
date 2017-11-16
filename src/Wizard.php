@@ -43,18 +43,25 @@ abstract class Wizard extends Leaf
     private function getDefaultStep()
     {
         $urlHandler = UrlHandler::getExecutingUrlHandler();
-        $urlHandled = $urlHandler->getHandledUrl();
 
-        /**
-         * @var WebRequest $request
-         */
-        $request = Request::current();
-        $url = $request->urlPath;
+        if ($urlHandler != null) {
 
-        $left = str_replace($urlHandled, '', $url);
+            $urlHandled = $urlHandler->getHandledUrl();
 
-        if (preg_match("/^([^\/]+)/", $left, $matches)){
-            return $matches[1];
+            /**
+             * @var WebRequest $request
+             */
+            $request = Request::current();
+
+            if ($request instanceof WebRequest) {
+                $url = $request->urlPath;
+
+                $left = str_replace($urlHandled, '', $url);
+
+                if (preg_match("/^([^\/]+)/", $left, $matches)) {
+                    return $matches[1];
+                }
+            }
         }
 
         return key($this->getSteps());
@@ -81,6 +88,19 @@ abstract class Wizard extends Leaf
         $model = new WizardModel();
         $model->steps = $this->getSteps();
 
+        foreach($model->steps as $stepName => $step){
+            if (!isset($model->wizardData[$stepName])){
+                $model->wizardData[$stepName] = [];
+            }
+
+            $step->setStepData($model->wizardData[$stepName]);
+        }
+
         return $model;
+    }
+
+    protected function &getWizardData()
+    {
+        return $this->model->wizardData;
     }
 }

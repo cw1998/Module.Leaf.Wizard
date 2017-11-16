@@ -9,6 +9,7 @@ use Rhubarb\Crown\Tests\Fixtures\TestCases\RhubarbTestCase;
 use Rhubarb\Crown\UrlHandlers\CallableUrlHandler;
 use Rhubarb\Crown\UrlHandlers\ClassMappedUrlHandler;
 use Rhubarb\Crown\UrlHandlers\UrlHandler;
+use Rhubarb\Leaf\Controls\Common\Text\TextBox;
 use Rhubarb\Leaf\Leaves\LeafModel;
 use Rhubarb\Leaf\Views\View;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNotAvailableException;
@@ -80,6 +81,50 @@ class WizardTest extends RhubarbTestCase
         // Observe that step2 is the output
         $this->assertContains("step2", $response->getContent());
     }
+
+    public function testStepsBindToWizard()
+    {
+        $wizard = new TestWizard([
+            "step1" => new StepTest("step1")
+        ]);
+
+        $request = new WebRequest();
+        $request->postData['TestWizard_step1_Forename'] = 'john';
+
+        $wizard->generateResponse($request);
+
+        /**
+         * @var WizardModel $model
+         */
+        $model = $wizard->getModelForTesting();
+
+        $this->assertEquals($model->wizardData["step1"]["Forename"], "john");
+
+        $wizardData = $wizard->getProtectedWizardData();
+
+        $this->assertEquals($wizardData["step1"]["Forename"], "john");
+    }
+
+    public function testStepsCanNavigate()
+    {
+        $wizard = new TestWizard([
+            "step1" => $step1 = new StepTest("step1"),
+            "step2" => new StepTest("step2")
+        ]);
+
+        /**
+         * @var StepModel $stepModel
+         */
+        $stepModel = $step1->getModelForTesting();
+        $stepModel->navigateToStepEvent->raise('step2');
+
+        /**
+         * @var WizardModel $model
+         */
+        $model = $wizard->getModelForTesting();
+
+        $this->assertEquals("step2", $model->currentStepName);
+    }
 }
 
 class TestWizard extends Wizard
@@ -94,6 +139,11 @@ class TestWizard extends Wizard
         $this->steps = $steps;
 
         parent::__construct();
+    }
+
+    public function getProtectedWizardData()
+    {
+        return $this->getWizardData();
     }
 
     protected function getSteps(): array
@@ -111,14 +161,29 @@ class StepTest extends Step
 
     protected function createModel()
     {
-        return new LeafModel();
+        return new StepModel();
+    }
+
+    protected function getStepTitle()
+    {
+        return "";
     }
 }
 
 class StepView extends View
 {
+    protected function createSubLeaves()
+    {
+        $this->registerSubLeaf(
+            new TextBox("Forename")
+        );
+
+        parent::createSubLeaves();
+    }
+
     protected function printViewContent()
     {
         print $this->model->leafName;
+        print $this->leaves["Forename"];
     }
 }
