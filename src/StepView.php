@@ -6,6 +6,11 @@ use Rhubarb\Leaf\Views\View;
 
 class StepView extends View
 {
+    /**
+     * @var StepModel
+     */
+    protected $model;
+
     protected function printViewContent()
     {
         parent::printViewContent();

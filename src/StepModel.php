@@ -28,5 +28,7 @@ class StepModel extends LeafModel
         $this->stepData = &$stepData;
 
         $this->bindingSource = &$stepData;
+
+        $this->bindingSource["a"] = "b";
     }
 }

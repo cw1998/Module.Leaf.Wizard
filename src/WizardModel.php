@@ -39,4 +39,11 @@ class WizardModel extends LeafModel
 
         $this->navigateToStepEvent = new Event();
     }
-}
+
+    protected function getExposableModelProperties()
+    {
+        $list = parent::getExposableModelProperties();
+        $list[] = "wizardData";
+
+        return $list;
+    }}
