@@ -10,6 +10,9 @@ use Rhubarb\Leaf\Leaves\LeafModel;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNavigationForbiddenException;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNotAvailableException;
 
+/**
+ * An abstract pattern for building 'wizards', i.e. step based journeys.
+ */
 abstract class Wizard extends Leaf
 {
     /**
@@ -49,8 +52,11 @@ abstract class Wizard extends Leaf
     /**
      * Called to determine if the step being navigated to is permitted in the current context.
      *
-     * Used as a fail safe to stop people arriving at steps which make no sense unless other steps
-     * are completed first.
+     * It is essential this method is implemented as a fail safe to stop people arriving at
+     * steps which make no sense unless other steps are completed first.
+     *
+     * This is not just a courtesy for users, it's an important security consideration; a
+     * malicious attacker could easily change the model state to 'skip' steps.
      *
      * @param $stepName string The name of the step being navigated to.
      * @return bool
@@ -60,6 +66,20 @@ abstract class Wizard extends Leaf
         return true;
     }
 
+    /**
+     * Called to initialise wizard data from some persistent data source.
+     *
+     * For example you might need to pre populate the first step of a checkout
+     * wizard with the customer's personal details. Or perhaps your wizard is
+     * designed to let users edit existing data.
+     *
+     * This method should fetch the data and apply it to
+     * $this->model->wizardData[stepname] as appropriate.
+     */
+    protected function loadDataFromPersistentState(): void
+    {
+    }
+
     protected function onModelCreated()
     {
         parent::onModelCreated();
@@ -67,6 +87,8 @@ abstract class Wizard extends Leaf
         $this->model->navigateToStepEvent->attachHandler(function($stepName){
             $this->changeStep($stepName);
         });
+
+        $this->loadDataFromPersistentState();
 
         // Get the first step name as our default starting step.
         $this->changeStep($this->getDefaultStep());
