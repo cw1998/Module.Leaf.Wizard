@@ -7,6 +7,7 @@ use Rhubarb\Crown\Request\WebRequest;
 use Rhubarb\Crown\UrlHandlers\UrlHandler;
 use Rhubarb\Leaf\Leaves\Leaf;
 use Rhubarb\Leaf\Leaves\LeafModel;
+use Rhubarb\Leaf\Wizard\Exceptions\StepNavigationForbiddenException;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNotAvailableException;
 
 abstract class Wizard extends Leaf
@@ -26,6 +27,11 @@ abstract class Wizard extends Leaf
     protected function getViewClass()
     {
         return WizardView::class;
+    }
+
+    protected function canNavigateToStep($stepName)
+    {
+        return true;
     }
 
     protected function onModelCreated()
@@ -73,6 +79,10 @@ abstract class Wizard extends Leaf
 
         if (!isset($steps[$stepName])){
             throw new StepNotAvailableException($stepName);
+        }
+
+        if (!$this->canNavigateToStep($stepName)){
+            throw new StepNavigationForbiddenException($stepName);
         }
 
         $this->model->currentStepName = $stepName;

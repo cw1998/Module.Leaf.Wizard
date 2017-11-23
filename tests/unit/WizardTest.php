@@ -3,16 +3,17 @@
 namespace Rhubarb\Leaf\Wizard\Tests;
 
 use Rhubarb\Crown\Application;
-use Rhubarb\Crown\Request\Request;
 use Rhubarb\Crown\Request\WebRequest;
 use Rhubarb\Crown\Tests\Fixtures\TestCases\RhubarbTestCase;
 use Rhubarb\Crown\UrlHandlers\CallableUrlHandler;
-use Rhubarb\Crown\UrlHandlers\ClassMappedUrlHandler;
 use Rhubarb\Crown\UrlHandlers\UrlHandler;
 use Rhubarb\Leaf\Controls\Common\Text\TextBox;
-use Rhubarb\Leaf\Leaves\LeafModel;
 use Rhubarb\Leaf\Views\View;
+use Rhubarb\Leaf\Wizard\Exceptions\StepNavigationForbiddenException;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNotAvailableException;
+use Rhubarb\Leaf\Wizard\Step;
+use Rhubarb\Leaf\Wizard\StepModel;
+use Rhubarb\Leaf\Wizard\Wizard;
 
 class WizardTest extends RhubarbTestCase
 {
@@ -125,6 +126,34 @@ class WizardTest extends RhubarbTestCase
 
         $this->assertEquals("step2", $model->currentStepName);
     }
+
+    public function testStepsCantNavigate()
+    {
+        $wizard = new TestWizard([
+            "step1" => $step1 = new StepTest("step1"),
+            "step2" => $step2 = new StepTest("step2")
+        ], function($stepName){
+            return $stepName != "step2";
+        });
+
+        /**
+         * @var StepModel $model
+         */
+        $model = $wizard->getModelForTesting();
+
+        try {
+            $model->navigateToStepEvent->raise("step2");
+            $this->fail("Shouldn't be allowed to navigate to step2");
+        } catch (StepNavigationForbiddenException $er){
+
+        }
+
+        try {
+            $model->navigateToStepEvent->raise("step1");
+        } catch (StepNavigationForbiddenException $er){
+            $this->fail("Should be allowed to navigate to step1");
+        }
+    }
 }
 
 class TestWizard extends Wizard
@@ -133,12 +162,29 @@ class TestWizard extends Wizard
      * @var array
      */
     private $steps;
+    /**
+     * @var null
+     */
+    private $canNavigateCallback;
 
-    public function __construct(array $steps)
+    public function __construct(array $steps, $canNavigateCallback = null)
     {
         $this->steps = $steps;
 
         parent::__construct();
+
+        $this->canNavigateCallback = $canNavigateCallback;
+    }
+
+    public function canNavigateToStep($step)
+    {
+        if ($this->canNavigateCallback){
+            $callback = $this->canNavigateCallback;
+
+            return $callback($step);
+        }
+
+        return true;
     }
 
     public function getProtectedWizardData()
