@@ -44,6 +44,7 @@ class WizardModel extends LeafModel
     {
         $list = parent::getExposableModelProperties();
         $list[] = "wizardData";
+        $list[] = "currentStepName";
 
         return $list;
     }}

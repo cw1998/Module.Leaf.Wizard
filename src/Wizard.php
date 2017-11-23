@@ -17,6 +17,23 @@ abstract class Wizard extends Leaf
      */
     protected $model;
 
+    /**
+     * Returns an array of step name strings to Step object pairs which define the list of
+     * possible steps.
+     *
+     * e.g.
+     *
+     * [
+     *      self::STEP_PERSONAL => new PersonalDetailsStep(),
+     *      self::STEP_ADDRESS => new AddressDetailsStep(),
+     *      self::STEP_PAYMENT => new PaymentDetailsStep(),
+     *      self::STEP_CONFIRM => new ConfirmDetailsStep()
+     * ]
+     *
+     * As the step names are important for navigation it's best practice to use constants for these.
+     *
+     * @return array
+     */
     protected abstract function getSteps(): array;
 
     /**
@@ -29,7 +46,16 @@ abstract class Wizard extends Leaf
         return WizardView::class;
     }
 
-    protected function canNavigateToStep($stepName)
+    /**
+     * Called to determine if the step being navigated to is permitted in the current context.
+     *
+     * Used as a fail safe to stop people arriving at steps which make no sense unless other steps
+     * are completed first.
+     *
+     * @param $stepName string The name of the step being navigated to.
+     * @return bool
+     */
+    protected function canNavigateToStep(string $stepName): bool
     {
         return true;
     }
@@ -46,7 +72,23 @@ abstract class Wizard extends Leaf
         $this->changeStep($this->getDefaultStep());
     }
 
-    private function getDefaultStep()
+    /**
+     * Returns the name of the step to show by default.
+     *
+     * This will normally return the first step from the list of steps returned by
+     * getSteps(), however if the URL contains an extra fragment that matches a
+     * step name e.g.
+     *
+     * /path/to/wizard/directstepname
+     *
+     * If directstepname was a step this would be returned as the default step.
+     *
+     * This function can be overridden if the default step should be locked to a particular step
+     * or if it should be derived from some data context.
+     *
+     * @return string
+     */
+    protected function getDefaultStep(): string
     {
         $urlHandler = UrlHandler::getExecutingUrlHandler();
 
@@ -73,6 +115,13 @@ abstract class Wizard extends Leaf
         return key($this->getSteps());
     }
 
+    /**
+     * Called internally to try and change the step
+     *
+     * @param $stepName
+     * @throws StepNavigationForbiddenException
+     * @throws StepNotAvailableException
+     */
     private function changeStep($stepName)
     {
         $steps = $this->getSteps();

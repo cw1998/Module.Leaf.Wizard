@@ -2,6 +2,8 @@
 
 namespace Rhubarb\Leaf\Wizard;
 
+use Rhubarb\Leaf\Controls\Common\Buttons\Button;
+use Rhubarb\Leaf\Leaves\LeafDeploymentPackage;
 use Rhubarb\Leaf\Views\View;
 
 class StepView extends View
@@ -11,12 +13,37 @@ class StepView extends View
      */
     protected $model;
 
+    protected function createSubLeaves()
+    {
+        parent::createSubLeaves();
+
+        $this->registerSubLeaf(
+            new Button("navigate", "Next", function($step){
+                $this->model->navigateToStepEvent->raise($step);
+            }));
+    }
+
+    protected function printNavigationSubmitLink(string $text, string $stepName, string $cssClasses = "")
+    {
+        ?><a href="#" class="js-wizard-step-link <?=htmlentities($cssClasses);?>" data-step="<?=htmlentities($stepName);?>"><?=$text;?></a><?php
+    }
+
+    protected function printNavigateButton($text, $step)
+    {
+        /**
+         * @var $button Button
+         */
+        $button = $this->leaves["navigate"];
+        $button->setButtonText($text);
+        $button->printWithIndex($step);
+    }
+
     protected function printViewContent()
     {
         parent::printViewContent();
 
         $this->printTop();
-        $this->printBody();
+        $this->printStepBody();
         $this->printTail();
     }
 
@@ -25,7 +52,7 @@ class StepView extends View
 
     }
 
-    protected function printBody()
+    protected function printStepBody()
     {
 
     }
@@ -34,4 +61,16 @@ class StepView extends View
     {
 
     }
+
+    public function getDeploymentPackage()
+    {
+        return new LeafDeploymentPackage(__DIR__.'/StepViewBridge.js');
+    }
+
+    protected function getViewBridgeName()
+    {
+        return "StepViewBridge";
+    }
+
+
 }
