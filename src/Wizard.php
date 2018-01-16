@@ -7,6 +7,7 @@ use Rhubarb\Crown\Request\WebRequest;
 use Rhubarb\Crown\UrlHandlers\UrlHandler;
 use Rhubarb\Leaf\Leaves\Leaf;
 use Rhubarb\Leaf\Leaves\LeafModel;
+use Rhubarb\Leaf\Wizard\Exceptions\AbortChangeStepException;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNavigationForbiddenException;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNotAvailableException;
 
@@ -37,7 +38,18 @@ abstract class Wizard extends Leaf
      *
      * @return array
      */
-    protected abstract function getSteps(): array;
+    protected abstract function createSteps(): array;
+
+    protected $steps = null;
+
+    protected final function getSteps()
+    {
+        if (!$this->steps) {
+            $this->steps = $this->createSteps();
+        }
+
+        return $this->steps;
+    }
 
     /**
      * Returns the name of the standard view used for this leaf.
@@ -138,6 +150,18 @@ abstract class Wizard extends Leaf
     }
 
     /**
+     * Allows methods to be executed before changeStep
+     *
+     * @param $stepName
+     * @return mixed
+     */
+    final function beforeChangeStep($stepName)
+    {
+        $steps = $this->getSteps();
+        return $steps[$stepName]->onLeaving();
+    }
+
+    /**
      * Called internally to try and change the step
      *
      * @param $stepName
@@ -146,6 +170,14 @@ abstract class Wizard extends Leaf
      */
     private function changeStep($stepName)
     {
+        $currentStep = $this->model->currentStepName;
+        try {
+            if ($currentStep) {
+                $this->beforeChangeStep($currentStep);
+            }
+        } catch (AbortChangeStepException $exception) {
+            return;
+        }
         $steps = $this->getSteps();
 
         if (!isset($steps[$stepName])){
@@ -157,6 +189,22 @@ abstract class Wizard extends Leaf
         }
 
         $this->model->currentStepName = $stepName;
+
+        if ($currentStep) {
+            $this->afterChangeStep($this->model->currentStepName);
+        }
+
+    }
+
+    /**
+     * Allows methods to be executed after changeStep
+     *
+     * @param $stepName
+     */
+    final function afterChangeStep($stepName)
+    {
+        $steps = $this->getSteps();
+        $steps[$stepName]->onLeft();
     }
 
     /**

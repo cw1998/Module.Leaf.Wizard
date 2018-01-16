@@ -45,4 +45,14 @@ abstract class Step extends Leaf
 
         $this->model->setStepData($stepData);
     }
+
+    public function onLeaving()
+    {
+
+    }
+
+    public function onLeft()
+    {
+
+    }
 }
