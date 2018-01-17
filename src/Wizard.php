@@ -153,12 +153,13 @@ abstract class Wizard extends Leaf
      * Allows methods to be executed before changeStep
      *
      * @param $currentStepName
+     * @param $targetStepName
      * @return mixed
      */
-    final function beforeChangeStep($currentStepName, $nextStepName)
+    final function beforeChangeStep($currentStepName, $targetStepName)
     {
         $steps = $this->getSteps();
-        return $steps[$currentStepName]->onLeaving($nextStepName);
+        return $steps[$currentStepName]->onLeaving($targetStepName);
     }
 
     /**
@@ -200,11 +201,12 @@ abstract class Wizard extends Leaf
      * Allows methods to be executed after changeStep
      *
      * @param $currentStepName
+     * @param $targetStepName
      */
-    final function afterChangeStep($currentStepName, $nextStepName)
+    final function afterChangeStep($currentStepName, $targetStepName)
     {
         $steps = $this->getSteps();
-        $steps[$currentStepName]->onLeft($nextStepName);
+        $steps[$currentStepName]->onLeft($targetStepName);
     }
 
     /**
