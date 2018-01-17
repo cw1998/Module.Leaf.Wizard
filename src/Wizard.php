@@ -152,13 +152,14 @@ abstract class Wizard extends Leaf
     /**
      * Allows methods to be executed before changeStep
      *
-     * @param $stepName
+     * @param $currentStepName
+     * @param $targetStepName
      * @return mixed
      */
-    final function beforeChangeStep($stepName)
+    final function beforeChangeStep($currentStepName, $targetStepName)
     {
         $steps = $this->getSteps();
-        return $steps[$stepName]->onLeaving();
+        return $steps[$currentStepName]->onLeaving($targetStepName);
     }
 
     /**
@@ -170,10 +171,10 @@ abstract class Wizard extends Leaf
      */
     private function changeStep($stepName)
     {
-        $currentStep = $this->model->currentStepName;
+        $currentStepName = $this->model->currentStepName;
         try {
-            if ($currentStep) {
-                $this->beforeChangeStep($currentStep);
+            if ($currentStepName) {
+                $this->beforeChangeStep($currentStepName, $stepName);
             }
         } catch (AbortChangeStepException $exception) {
             return;
@@ -190,8 +191,8 @@ abstract class Wizard extends Leaf
 
         $this->model->currentStepName = $stepName;
 
-        if ($currentStep) {
-            $this->afterChangeStep($this->model->currentStepName);
+        if ($currentStepName) {
+            $this->afterChangeStep($currentStepName, $stepName);
         }
 
     }
@@ -199,12 +200,13 @@ abstract class Wizard extends Leaf
     /**
      * Allows methods to be executed after changeStep
      *
-     * @param $stepName
+     * @param $currentStepName
+     * @param $targetStepName
      */
-    final function afterChangeStep($stepName)
+    final function afterChangeStep($currentStepName, $targetStepName)
     {
         $steps = $this->getSteps();
-        $steps[$stepName]->onLeft();
+        $steps[$currentStepName]->onLeft($targetStepName);
     }
 
     /**
