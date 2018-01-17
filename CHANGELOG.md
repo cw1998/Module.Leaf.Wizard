@@ -1,6 +1,6 @@
 # Changelog
 
-### 1.0.1
+### 1.0.2
 
 Changed:    `onLeaving()` and `onLeft()` functions now take the `$nextStepName` as a parameter.
 
