@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.0.3
+
+Changed:    Removed void return type from `loadDataFromPersistentState()` to support PHP < 7.1
+
 ### 1.0.2
 
 Changed:    `onLeaving()` and `onLeft()` functions now take the `$nextStepName` as a parameter.
