@@ -88,7 +88,7 @@ abstract class Wizard extends Leaf
      * This method should fetch the data and apply it to
      * $this->model->wizardData[stepname] as appropriate.
      */
-    protected function loadDataFromPersistentState(): void
+    protected function loadDataFromPersistentState()
     {
     }
 
