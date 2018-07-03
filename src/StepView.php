@@ -47,16 +47,25 @@ class StepView extends View
         $this->printTail();
     }
 
+    /**
+     * Override to supply a common top area of HTML
+     */
     protected function printTop()
     {
 
     }
 
+    /**
+     * Override to print the step content
+     */
     protected function printStepBody()
     {
 
     }
 
+    /**
+     * Override to supply a common bottom area of HTML
+     */
     protected function printTail()
     {
 

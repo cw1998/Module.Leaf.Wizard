@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.0.4
+
+Added:      Documentation!
+
 ### 1.0.3
 
 Changed:    Removed void return type from `loadDataFromPersistentState()` to support PHP < 7.1

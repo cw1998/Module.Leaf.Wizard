@@ -40,8 +40,18 @@ abstract class Wizard extends Leaf
      */
     protected abstract function createSteps(): array;
 
+    /**
+     * A cached collection of step leaf objects
+     *
+     * @var Step[]|null
+     */
     protected $steps = null;
 
+    /**
+     * Returns the steps array or calls createSteps() to generate it if it hasn't been already
+     *
+     * @return array|null|Step[]
+     */
     protected final function getSteps()
     {
         if (!$this->steps) {
