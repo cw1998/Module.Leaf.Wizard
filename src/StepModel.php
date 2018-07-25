@@ -14,7 +14,7 @@ class StepModel extends LeafModel
      */
     public $navigateToStepEvent;
 
-    private $stepData;
+    public $stepData;
 
     public function __construct()
     {
