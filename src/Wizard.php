@@ -231,8 +231,14 @@ abstract class Wizard extends Leaf
         $model->steps = $this->getSteps();
 
         foreach ($model->steps as $stepName => $step) {
+            $bindingKey = $step->getStepDataBindingKey() ?? $stepName;
+
             if (!isset($model->wizardData[$stepName])) {
-                $model->wizardData[$stepName] = [];
+                if ($bindingKey != $stepName) {
+                    $model->wizardData[$stepName] = &$model->wizardData[$bindingKey];
+                } else {
+                    $model->wizardData[$stepName] = [];
+                }
             }
 
             $step->setStepData($model->wizardData[$stepName]);

@@ -2,16 +2,12 @@
 
 namespace Rhubarb\Leaf\Wizard\Tests;
 
-use Codeception\Test\Unit;
-use Codeception\Util\Stub;
-use function foo\func;
 use Rhubarb\Crown\Application;
 use Rhubarb\Crown\Request\WebRequest;
 use Rhubarb\Crown\Tests\Fixtures\TestCases\RhubarbTestCase;
 use Rhubarb\Crown\UrlHandlers\CallableUrlHandler;
 use Rhubarb\Crown\UrlHandlers\UrlHandler;
 use Rhubarb\Leaf\Controls\Common\Text\TextBox;
-use Rhubarb\Leaf\Views\View;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNavigationForbiddenException;
 use Rhubarb\Leaf\Wizard\Exceptions\StepNotAvailableException;
 use Rhubarb\Leaf\Wizard\Step;
@@ -148,7 +144,24 @@ class WizardTest extends RhubarbTestCase
             $this->fail("Should be allowed to navigate to step1");
         }
     }
+
+    public function testRequestingStepTwoDataGetsStepOneData()
+    {
+        $wizard = new TestWizardSharedData();
+
+        /** @var WizardModel $wizardModel */
+        $wizardModel = $wizard->getModelForTesting();
+
+        $stepOneData = &$wizardModel->wizardData['step1'];
+        $stepOneData['test'] = 'step 1 test data';
+
+        $stepTwoData = $wizardModel->wizardData['step2'];
+
+        $this->assertEquals('step 1 test data', $stepTwoData['test']);
+    }
+
 }
+
 
 class TestWizard extends Wizard
 {
@@ -158,6 +171,23 @@ class TestWizard extends Wizard
         return [
             'step1' => new StepTest(),
             'step2' => new StepTest()
+        ];
+    }
+
+    public function getProtectedSteps(){
+        return $this->steps;
+    }
+}
+
+class TestWizardSharedData extends Wizard
+{
+
+    protected function createSteps(): array
+    {
+        return [
+            'step1' => new StepTest(),
+            'step2' => new StepSharedTest(),
+            'step3' => new StepTest()
         ];
     }
 
@@ -189,6 +219,19 @@ class TestWizardNoNav extends Wizard
 
 class StepTest extends Step
 {
+    protected function getViewClass()
+    {
+        return StepView::class;
+    }
+}
+
+class StepSharedTest extends Step
+{
+    public function getStepDataBindingKey()
+    {
+        return 'step1';
+    }
+
     protected function getViewClass()
     {
         return StepView::class;
