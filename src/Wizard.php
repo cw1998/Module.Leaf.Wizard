@@ -100,13 +100,14 @@ abstract class Wizard extends Leaf
      */
     protected function loadDataFromPersistentState()
     {
+
     }
 
     protected function onModelCreated()
     {
         parent::onModelCreated();
 
-        $this->model->navigateToStepEvent->attachHandler(function($stepName){
+        $this->model->navigateToStepEvent->attachHandler(function ($stepName) {
             $this->changeStep($stepName);
         });
 
@@ -191,11 +192,11 @@ abstract class Wizard extends Leaf
         }
         $steps = $this->getSteps();
 
-        if (!isset($steps[$stepName])){
+        if (!isset($steps[$stepName])) {
             throw new StepNotAvailableException($stepName);
         }
 
-        if (!$this->canNavigateToStep($stepName)){
+        if (!$this->canNavigateToStep($stepName)) {
             throw new StepNavigationForbiddenException($stepName);
         }
 
@@ -229,8 +230,8 @@ abstract class Wizard extends Leaf
         $model = new WizardModel();
         $model->steps = $this->getSteps();
 
-        foreach($model->steps as $stepName => $step){
-            if (!isset($model->wizardData[$stepName])){
+        foreach ($model->steps as $stepName => $step) {
+            if (!isset($model->wizardData[$stepName])) {
                 $model->wizardData[$stepName] = [];
             }
 

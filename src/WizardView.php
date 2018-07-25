@@ -15,8 +15,8 @@ class WizardView extends View
     {
         parent::onStateRestored();
 
-        foreach($this->model->steps as $stepName => $step){
-            if (!isset($this->model->wizardData[$stepName])){
+        foreach ($this->model->steps as $stepName => $step) {
+            if (!isset($this->model->wizardData[$stepName])) {
                 $this->model->wizardData[$stepName] = [];
             }
             $data = &$this->model->wizardData[$stepName];
@@ -26,8 +26,8 @@ class WizardView extends View
 
     protected function createSubLeaves()
     {
-        foreach($this->model->steps as $step){
-            $step->navigateToStepEvent->attachHandler(function($nextStep){
+        foreach ($this->model->steps as $step) {
+            $step->navigateToStepEvent->attachHandler(function ($nextStep) {
                 $this->model->navigateToStepEvent->raise($nextStep);
             });
 

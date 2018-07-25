@@ -32,7 +32,7 @@ abstract class Step extends Leaf
     {
         parent::onModelCreated();
 
-        $this->model->navigateToStepEvent->attachHandler(function($newStepName){
+        $this->model->navigateToStepEvent->attachHandler(function ($newStepName) {
             $this->navigateToStepEvent->raise($newStepName);
         });
     }

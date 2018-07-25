@@ -18,14 +18,18 @@ class StepView extends View
         parent::createSubLeaves();
 
         $this->registerSubLeaf(
-            new Button("navigate", "Next", function($step){
+            new Button("navigate", "Next", function($step) {
                 $this->model->navigateToStepEvent->raise($step);
-            }));
+            })
+        );
     }
 
     protected function printNavigationSubmitLink(string $text, string $stepName, string $cssClasses = "")
     {
-        ?><a href="#" class="js-wizard-step-link <?=htmlentities($cssClasses);?>" data-step="<?=htmlentities($stepName);?>"><?=$text;?></a><?php
+        ?>
+        <a href="#" class="js-wizard-step-link <?= htmlentities($cssClasses); ?>"
+           data-step="<?= htmlentities($stepName); ?>"><?= $text; ?></a>
+        <?php
     }
 
     protected function printNavigateButton($text, $step)
@@ -80,6 +84,4 @@ class StepView extends View
     {
         return "StepViewBridge";
     }
-
-
 }
