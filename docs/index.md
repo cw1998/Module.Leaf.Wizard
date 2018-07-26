@@ -359,3 +359,54 @@ class Checkout extends Wizard
     }
 }
 ```
+
+### Step data sharing
+
+There are occasions where it may be appropriate for two different steps to share
+and update the same set of data. In the E-commerce example, it may be the case that
+there is a payment and delivery details step, then on a confirm order step, the customer may
+decide that they want to change their delivery information. In this case you have to
+redirect them to a 'change delivery details' step rather than the original payment and delivery
+details step.
+
+Steps can share data by changing their `StepDataBindingKey` which can be done by overriding the
+`getStepDataBindingKey` function in your `Step` class.
+
+By default, this function returns `null` which tells the wizard that this step should store
+its own data. Making the function return the name of another step will tell the wizard
+that when accessing that step's data, it should actually be the data from the other step.
+
+```php
+class ChangeDeliveryStep extends Step
+{
+    // Overridden function
+    protected function getStepDataBindingKey()
+    {
+        return Checkout::STEP_PAYMENT_DELIVERY;    
+    }
+}
+```
+
+```php
+class Checkout extends Wizard
+{
+    const STEP_PAYMENT_DELIVERY = 'payment-and-delivery';
+    const STEP_CONFIRM = 'confirm';
+    const STEP_CHANGE_DELIVERY = 'change-delivery';
+    
+    protected function createSteps(): array
+    {
+        return [
+            self::STEP_PAYMENT_DELIVERY => new PaymentDeliveryStep(),
+            self::STEP_CONFIRM => new ConfirmationStep(),
+            self::STEP_CHANGE_DELIVERY => new ChangeDeliveryStep() // This steps data points to the first step  
+        ];
+    }
+}
+```
+
+In this example, accessing the step data of `change-delivery` will actually point to
+the step data of `payment-and-delivery`. Therefore, it could be said that `stepData['payment-and-delivery'] === stepData['change-delivery']`
+
+> Be careful not to point two steps' data to each other.
+> This may result in unwanted behaviour.
