@@ -1,11 +1,11 @@
 Wizards
 =======
 
-A multi-stepped data gathering process is often called a wizard. When people here the term 'wizard'
+A multi-stepped data gathering process is often called a wizard. When people hear the term 'wizard'
 many naturally think of dialogs in traditional GUI software with next, back and cancel buttons. In
-fact many web based systems also fit the description of a wizard even if the term 'wizard' would
-not occur to the users. For example a checkout of an Ecommerce site generally has a details step, a
-shipping step, a billing step a final review step and an acknowledgement step. Similarly onboarding
+fact, many web based systems also fit the description of a wizard even if the term 'wizard' would
+not occur to the users. For example, a checkout of an E-commerce site generally has a details step, a
+shipping step, a billing step a final review step and an acknowledgement step. Similarly, onboarding
 forms for new accounts are often stepped to guide the user through the journey and perhaps to
 conceal the full size of the form from the user.
 
@@ -26,11 +26,11 @@ For each step you need to make:
 
 ### The StepView
 
-A StepView is the canvas on which your present your steps UI and it behaves
+A StepView is a canvas on which your present your steps UI and it behaves
 just like a normal Leaf. You should create your sub leaves in the normal way
 by extending `createSubLeaves`.
 
-However most 'steps' in a wizard have a familiar surround and so while you
+However, most 'steps' in a wizard have a familiar surround and so while you
 could extend the `printViewContent` function as normal, a StepView
 has a pattern of three methods you can override instead:
 
@@ -43,9 +43,9 @@ has a pattern of three methods you can override instead:
 `printStepBody()`
 :   The step content itself
 
-Its expected that you might make a base View for your wizard that implements
+It's expected that you might make a base View for your wizard that implements
 `printTop` or `printTail` in order to supply common elements like a step
-indicator, and leave the `printStepBody` to be overriden by the 
+indicator, and leave the `printStepBody` to be overridden by the 
 actual step views.
 
 The StepView also provides two important helper methods:
@@ -82,7 +82,7 @@ class Checkout extends Wizard
 ```
 
 Note that there is no particular rhyme or reason in the keys used in the
-array, however they do become important for navigation. Think of these
+array, however, they do become important for navigation. Think of these
 keys as aliases for referring to the steps later. As such its best practice
 to define the keys as constants instead so that navigation logic can
 be sure to get the right alias names:
@@ -107,13 +107,13 @@ class Checkout extends Wizard
 }
 ```
 
-You can of course create steps conditionally by reviewing state however
-it is strongly discouraged. Ideally this function should return the same
+You can, of course, create steps conditionally by reviewing state however
+it is strongly discouraged. Ideally, this function should return the same
 array under any circumstances. The actual journey your user takes may
 not touch all of these steps depending on how the navigation buttons
 bring them through the wizard. That is fine - there is no problem having
 the additional steps created. Also if you need to control the 'entry' or
-default step you can do this in more considered way that changing the
+default step you can do this in a more considered way than changing the
 order of the steps in this array.
 
 ### Controlling the entry step
@@ -175,7 +175,7 @@ class Checkout extends Wizard
             $this->wizardData[self::STEP_PERSONAL]['FirstName'] == '' ){
             
             // If the user hasn't entered a name then only the personal
-            // details step is permissable.
+            // details step is permissible.
                                
             return false;
         }
@@ -251,7 +251,7 @@ array store.
 ## Processing Data
 
 When you need to process user events you can do this either in the step or
-the wizard. Event processing in the step must confined to actions that can
+the wizard. Event processing in the step must be confined to actions that can
 be completed with only the data on that step. If your processing action
 requires data gathered on other steps you must bubble the event up to
 your wizard leaf class.
@@ -290,7 +290,7 @@ class Checkout extends Wizard
 
 Some stepped systems are populating business models that could be stored
 'as you go'. Others may want to initialise the wizard with data from the
-business models, for example to load up the logged in customers details.
+business models, for example, to load up the logged in customers details.
 
 There are three main patterns for state persistence:
 
@@ -298,36 +298,36 @@ There are three main patterns for state persistence:
 from the steps and on the final step a button raises an event and your
 wizard invokes the state storage.
 
-2. For wizards that edit or amend existing data you can override
+2. For wizards that edit or amend existing data, you can override
 `loadDataFromPersistantState()` and return an array of wizard data, keyed
 by the step alias name with values that are associate arrays of the 
 initialised data.
 
-3. In some cases you may abandon the central storage of wizard data provided
+3. In some cases, you may abandon the central storage of wizard data provided
 by the Wizard class and intentionally make your Step classes use a Leaf model
 that *does not* extend from StepModel. You can then populate your own model
 data and commit it for storage just as you would if this was a normal page
 leaf. This means the wizard is just providing the mechanics around step
 switching and validation but it can be appropriate. Perhaps your steps
-are all self contained and by design should update the data store as the user
+are all self-contained and by design should update the data store as the user
 leaves each step.
 
 ### Step reuse
 
 Sometimes you need to allow the user to arrive at the same step from
-different places, however the user interface needs to change subtly
+different places, however, the user interface needs to change subtly
 based on where the user came from. Most often the main change is that
 where the 'next' button takes them would be completely different.
 
 Rather than invent extremely complex validation logic and add lots of
 conditions in the UI for detecting which 'mode' the step is running in
-it is much more straight forward to add the same step class multiple times
+it is much more straightforward to add the same step class multiple times
 when defining your steps with different aliases.
 
 You can use the same step any number of times and if you pass arguments to
-it's constructor you can control it's 'mode' in a more explicit fashion.
+its constructor you can control it's 'mode' in a more explicit fashion.
 
-For example consider the case where an address step needs to show as the
+For example, consider the case where an address step needs to show as the
 user moves through a checkout. But from the confirm step the user might
 be invited to make changes to the address before confirming the order.
 When the user navigates to change the address, the buttons should be
@@ -335,7 +335,7 @@ different. The user should not be offered a 'back to details' button and
 the 'forward to payment' button should be replaced with a 'continue' button
 that returns them to the confirm step. By providing for these modes and
 adding two steps to the step list it is much simpler by design. You can
-also acheive the 'mode' variation by extending the step class although
+also achieve the 'mode' variation by extending the step class although
 this requires also extending the view in most cases. 
 
 ```php
