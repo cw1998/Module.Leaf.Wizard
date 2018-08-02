@@ -231,8 +231,11 @@ simply extend the appropriate method to implement:
     If you throw an AbortChangeStepException then the navigation will
     be cancelled.
 
-`onLeftSte[]($fromStep, $toStep)`
+`onLeftStep[]($fromStep, $toStep)`
 :   Called after the step change has completed.
+
+> Note that these lifecycle events are only fired if the user is navigating
+> to a step other than the one they're currently on.
 
 ### Step Lifecycle methods
 
@@ -245,6 +248,9 @@ Similarly the wizard lifecycle methods are repeated on the steps themselves:
 
 `onLeft($targetStepName)`
 :   Called after the step change has completed.
+
+> Note that these lifecycle events are only fired if the user is navigating
+> to a step other than the one they're currently on.
 
 ## Data Binding
 

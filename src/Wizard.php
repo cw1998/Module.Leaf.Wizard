@@ -207,6 +207,11 @@ abstract class Wizard extends Leaf
     private function changeStep($stepName)
     {
         $currentStepName = $this->model->currentStepName;
+
+        if ($stepName == $currentStepName){
+            return;
+        }
+
         try {
             if ($currentStepName) {
                 $this->beforeChangeStep($currentStepName, $stepName);

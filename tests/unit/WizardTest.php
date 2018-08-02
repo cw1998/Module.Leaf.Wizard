@@ -179,11 +179,22 @@ class WizardTest extends RhubarbTestCase
          * @var WizardModel $model
          */
         $model = $wizard->getModelForTesting();
+
+        $model->navigateToStepEvent->raise("step1");
+
+        $this->assertNull($wizard->didLeaveFrom);
+
         $model->navigateToStepEvent->raise("step2");
 
         $this->assertNotNull($wizard->didLeaveFrom);
         $this->assertEquals("step1", $wizard->didLeaveFrom);
         $this->assertEquals("step2", $wizard->didLeaveTo);
+
+        $wizard->didLeftFrom = null;
+
+        $model->navigateToStepEvent->raise("step2");
+
+        $this->assertNull($wizard->didLeftFrom);
 
         $model->navigateToStepEvent->raise("step1");
 
