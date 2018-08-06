@@ -1,5 +1,9 @@
 # Changelog
 
+### 1.1.0
+
+Added:      Method to share data completely between one ore more steps (see documentation)
+
 ### 1.0.6
 
 Changed:    Lifecycle methods only called now if the step is actually changing to a different step.
