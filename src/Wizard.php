@@ -83,7 +83,7 @@ abstract class Wizard extends Leaf
      * @param $stepName string The name of the step being navigated to.
      * @return bool
      */
-    protected function canNavigateToStep(string $stepName): bool
+    protected function canNavigateToStep(string $stepName)
     {
         return true;
     }
@@ -170,7 +170,32 @@ abstract class Wizard extends Leaf
     final function beforeChangeStep($currentStepName, $targetStepName)
     {
         $steps = $this->getSteps();
+
+        $this->onLeavingStep($currentStepName, $targetStepName);
+
         return $steps[$currentStepName]->onLeaving($targetStepName);
+    }
+
+    /**
+     * Called when we're about to leave a step.
+     *
+     * At this point you can abort the step change by raising an AbortChangeStepException
+     *
+     */
+    protected function onLeavingStep($fromStep, $toStep)
+    {
+
+    }
+
+    /**
+     * Called after we've left a step.
+     *
+     * This is a useful place to perform any saving actions or state commits on the back of a user
+     * leaving a step.
+     */
+    protected function onLeftStep($fromStep, $toStep)
+    {
+
     }
 
     /**
@@ -183,6 +208,11 @@ abstract class Wizard extends Leaf
     private function changeStep($stepName)
     {
         $currentStepName = $this->model->currentStepName;
+
+        if ($stepName == $currentStepName){
+            return;
+        }
+
         try {
             if ($currentStepName) {
                 $this->beforeChangeStep($currentStepName, $stepName);
@@ -216,6 +246,8 @@ abstract class Wizard extends Leaf
      */
     final function afterChangeStep($currentStepName, $targetStepName)
     {
+        $this->onLeftStep($currentStepName, $targetStepName);
+
         $steps = $this->getSteps();
         $steps[$currentStepName]->onLeft($targetStepName);
     }

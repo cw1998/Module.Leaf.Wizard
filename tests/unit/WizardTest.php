@@ -3,6 +3,8 @@
 namespace Rhubarb\Leaf\Wizard\Tests;
 
 use Rhubarb\Crown\Application;
+use Rhubarb\Crown\PhpContext;
+use Rhubarb\Crown\Request\Request;
 use Rhubarb\Crown\Request\WebRequest;
 use Rhubarb\Crown\Tests\Fixtures\TestCases\RhubarbTestCase;
 use Rhubarb\Crown\UrlHandlers\CallableUrlHandler;
@@ -27,9 +29,15 @@ class WizardTest extends RhubarbTestCase
 
     public function testWizardShowsFirstStep()
     {
-        $wizard = new TestWizard();
+        $wizard = new TestWizard([
+            'step1' => new StepTest(),
+            'step2' => new StepTest()
+        ]);
 
-        $response = $wizard->generateResponse(new WebRequest());
+        $request = new WebRequest();
+        Application::current()->setCurrentRequest($request);
+
+        $response = $wizard->generateResponse($request);
 
         // Observe that step1 is the output
         $this->assertContains("step1", $response->getContent());
@@ -37,7 +45,10 @@ class WizardTest extends RhubarbTestCase
 
     public function testWizardCurrentStepIsFirstStep()
     {
-        $wizard = new TestWizard();
+        $wizard = new TestWizard([
+            'step1' => new StepTest(),
+            'step2' => new StepTest()
+        ]);
 
         /** @var WizardModel $model */
         $model = $wizard->getModelForTesting();
@@ -47,7 +58,10 @@ class WizardTest extends RhubarbTestCase
 
     public function testWizardCanProgress()
     {
-        $wizard = new TestWizard();
+        $wizard = new TestWizard([
+            'step1' => new StepTest(),
+            'step2' => new StepTest()
+        ]);
 
         /**
          * @var WizardModel $model
@@ -55,7 +69,10 @@ class WizardTest extends RhubarbTestCase
         $model = $wizard->getModelForTesting();
         $model->navigateToStepEvent->raise("step2");
 
-        $response = $wizard->generateResponse(new WebRequest());
+        $request = new WebRequest();
+        Application::current()->setCurrentRequest($request);
+
+        $response = $wizard->generateResponse($request);
 
         // Observe that step2 is the output
         $this->assertContains("step2", $response->getContent());
@@ -73,7 +90,10 @@ class WizardTest extends RhubarbTestCase
         Application::current()->setCurrentRequest($request);
 
         $handler = new CallableUrlHandler(function(){
-            return new TestWizard();
+            return new TestWizard([
+                'step1' => new StepTest(),
+                'step2' => new StepTest()
+            ]);
         });
 
         $handler->setUrl("/");
@@ -88,10 +108,15 @@ class WizardTest extends RhubarbTestCase
 
     public function testStepsBindToWizard()
     {
-        $wizard = new TestWizard();
+        $wizard = new TestWizard([
+            'step1' => new StepTest(),
+            'step2' => new StepTest()
+        ]);
 
         $request = new WebRequest();
         $request->postData['TestWizard_StepTest_Forename'] = 'john';
+
+        Application::current()->setCurrentRequest($request);
 
         $wizard->generateResponse($request);
 
@@ -105,7 +130,10 @@ class WizardTest extends RhubarbTestCase
 
     public function testStepsCanNavigate()
     {
-        $wizard = new TestWizard();
+        $wizard = new TestWizard([
+            'step1' => new StepTest(),
+            'step2' => new StepTest()
+        ]);
 
         $step1 = $wizard->getProtectedSteps()['step1'];
 
@@ -160,28 +188,103 @@ class WizardTest extends RhubarbTestCase
         $this->assertEquals('step 1 test data', $stepTwoData['test']);
     }
 
+    public function testWizardCanActOnStepLeavingAndLeft()
+    {
+        $wizard = new TestWizard([
+            "step1" => $step1 = new StepTest("step1"),
+            "step2" => $step2 = new StepTest("step2")
+        ], function($stepName){
+            return true;
+        });
+
+        /**
+         * @var WizardModel $model
+         */
+        $model = $wizard->getModelForTesting();
+
+        $model->navigateToStepEvent->raise("step1");
+
+        $this->assertNull($wizard->didLeaveFrom);
+
+        $model->navigateToStepEvent->raise("step2");
+
+        $this->assertNotNull($wizard->didLeaveFrom);
+        $this->assertEquals("step1", $wizard->didLeaveFrom);
+        $this->assertEquals("step2", $wizard->didLeaveTo);
+
+        $wizard->didLeftFrom = null;
+
+        $model->navigateToStepEvent->raise("step2");
+
+        $this->assertNull($wizard->didLeftFrom);
+
+        $model->navigateToStepEvent->raise("step1");
+
+        $this->assertEquals("step2", $wizard->didLeftFrom);
+        $this->assertEquals("step1", $wizard->didLeftTo);
+    }
 }
 
 
 class TestWizard extends Wizard
 {
+    /**
+     * @var array
+     */
+    protected $steps;
+    /**
+     * @var null
+     */
+    private $canNavigateCallback;
 
-    protected function createSteps(): array
+    public $didLeaveFrom;
+    public $didLeaveTo;
+
+    public $didLeftFrom;
+    public $didLeftTo;
+
+    public function __construct(array $steps, $canNavigateCallback = null)
     {
-        return [
-            'step1' => new StepTest(),
-            'step2' => new StepTest()
-        ];
+        $this->steps = $steps;
+        parent::__construct();
+        $this->canNavigateCallback = $canNavigateCallback;
     }
 
     public function getProtectedSteps(){
+        return $this->steps;
+    }
+
+    protected function onLeavingStep($fromStep, $toStep)
+    {
+        $this->didLeaveFrom = $fromStep;
+        $this->didLeaveTo = $toStep;
+    }
+    protected function onLeftStep($fromStep, $toStep)
+    {
+        $this->didLeftFrom = $fromStep;
+        $this->didLeftTo = $toStep;
+    }
+
+    public function canNavigateToStep(string $step)
+    {
+        if ($this->canNavigateCallback){
+            $callback = $this->canNavigateCallback;
+            return $callback($step);
+        }
+        return true;
+    }
+    public function getProtectedWizardData()
+    {
+        return $this->getWizardData();
+    }
+    protected function createSteps(): array
+    {
         return $this->steps;
     }
 }
 
 class TestWizardSharedData extends Wizard
 {
-
     protected function createSteps(): array
     {
         return [
@@ -190,15 +293,12 @@ class TestWizardSharedData extends Wizard
             'step3' => new StepTest()
         ];
     }
-
     public function getProtectedSteps(){
         return $this->steps;
     }
 }
-
 class TestWizardNoNav extends Wizard
 {
-
     protected function createSteps(): array
     {
         return [
@@ -206,17 +306,14 @@ class TestWizardNoNav extends Wizard
             'step2' => new StepTest()
         ];
     }
-
     public function getProtectedSteps(){
         return $this->steps;
     }
-
     protected function canNavigateToStep(string $stepName): bool
     {
         return $stepName != 'step2';
     }
 }
-
 class StepTest extends Step
 {
     protected function getViewClass()
@@ -224,14 +321,12 @@ class StepTest extends Step
         return StepView::class;
     }
 }
-
 class StepSharedTest extends Step
 {
     public function getStepDataBindingKey()
     {
         return 'step1';
     }
-
     protected function getViewClass()
     {
         return StepView::class;
