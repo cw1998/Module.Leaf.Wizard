@@ -6,6 +6,8 @@ use Rhubarb\Crown\Events\Event;
 use Rhubarb\Crown\Exceptions\RhubarbException;
 use Rhubarb\Leaf\Exceptions\InvalidLeafModelException;
 use Rhubarb\Leaf\Leaves\Leaf;
+use Rhubarb\Leaf\Wizard\Exceptions\StepNavigationForbiddenException;
+use Rhubarb\Leaf\Wizard\Exceptions\StepNotAvailableException;
 
 abstract class Step extends Leaf
 {
@@ -33,7 +35,11 @@ abstract class Step extends Leaf
         parent::onModelCreated();
 
         $this->model->navigateToStepEvent->attachHandler(function($newStepName){
-            $this->navigateToStepEvent->raise($newStepName);
+            try {
+                $this->navigateToStepEvent->raise($newStepName);
+            } catch (StepNavigationForbiddenException $er){
+            } catch (StepNotAvailableException $er){
+            }
         });
     }
 

@@ -221,10 +221,25 @@ When a navigation event is raised the wizard will call the `onLeaving`
 method on the current step's Step class. If this function throws an
 AbortChangeStepException then the navigation will fail.
 
-### Step Lifecycle methods
+### Wizard Lifecycle methods
 
 There are two main lifecycle methods you may find useful. In each case
 simply extend the appropriate method to implement:
+
+`onLeavingStep($fromStep, $toStep)`
+:   Called when the user is trying to navigate away from the current step.
+    If you throw an AbortChangeStepException then the navigation will
+    be cancelled.
+
+`onLeftStep[]($fromStep, $toStep)`
+:   Called after the step change has completed.
+
+> Note that these lifecycle events are only fired if the user is navigating
+> to a step other than the one they're currently on.
+
+### Step Lifecycle methods
+
+Similarly the wizard lifecycle methods are repeated on the steps themselves:
 
 `onLeaving($targetStepName)`
 :   Called when the step is the current step but the user is trying to navigate
@@ -233,6 +248,9 @@ simply extend the appropriate method to implement:
 
 `onLeft($targetStepName)`
 :   Called after the step change has completed.
+
+> Note that these lifecycle events are only fired if the user is navigating
+> to a step other than the one they're currently on.
 
 ## Data Binding
 
@@ -283,6 +301,16 @@ class Checkout extends Wizard
     }
 }
 ```
+
+### Processing data in response to navigation
+
+Sometimes you won't be defining your own buttons for the step, you want to
+rely instead upon actions being committed when the user performs the
+navigation to another step.
+
+The easiest mechanism for this is to override either the `onLeft` method of
+the Step class, or the `onLeftStep` method of the `Wizard` (depending on
+if the saving action needs know about more than the single step or not).
 
 ## Advanced Techniques
 
