@@ -1,5 +1,14 @@
 # Changelog
 
+### 1.0.6
+
+Changed:    Lifecycle methods only called now if the step is actually changing to a different step.
+
+### 1.0.5
+
+Added:      New hooks onLeavingStep and onLeftStep in the Wizard
+Changed:    $stepData on StepModel is now public so steps can modify the step data (with caution!)      
+
 ### 1.0.4
 
 Added:      Documentation!
