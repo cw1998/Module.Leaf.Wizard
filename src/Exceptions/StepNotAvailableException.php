@@ -8,7 +8,6 @@ class StepNotAvailableException extends RhubarbException
 {
     public function __construct($stepName, \Exception $previous = null)
     {
-        parent::__construct("The step name `".$stepName."` was not valid.", $previous);
+        parent::__construct("The step name `" . $stepName . "` was not valid.", $previous);
     }
-
 }

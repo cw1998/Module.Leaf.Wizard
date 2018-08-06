@@ -8,6 +8,6 @@ class AbortChangeStepException extends RhubarbException
 {
     public function __construct($stepName, \Exception $previous = null)
     {
-        parent::__construct("Navigation to step `".$stepName."` aborted.", $previous);
+        parent::__construct("Navigation to step `" . $stepName . "` aborted.", $previous);
     }
 }

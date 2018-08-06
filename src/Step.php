@@ -43,6 +43,11 @@ abstract class Step extends Leaf
         });
     }
 
+    public function getStepDataBindingKey()
+    {
+        return null;
+    }
+
     public function setStepData(&$stepData)
     {
         if (!$this->model instanceof StepModel){

@@ -47,4 +47,5 @@ class WizardModel extends LeafModel
         $list[] = "currentStepName";
 
         return $list;
-    }}
+    }
+}
