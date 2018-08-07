@@ -22,7 +22,8 @@ class WizardView extends View
                 $this->model->wizardData[$bindingKey] = [];
             }
 
-            $step->setStepData($this->model->wizardData[$bindingKey]);
+            $stepData = &$this->model->wizardData[$bindingKey];
+            $step->setStepData($stepData);
         }
     }
 
