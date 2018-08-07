@@ -255,7 +255,9 @@ abstract class Wizard extends Leaf
     /**
      * Should return a class that derives from LeafModel
      *
+     * @see Step::getStepDataBindingKey()
      * @return LeafModel
+     * @throws \Rhubarb\Leaf\Exceptions\InvalidLeafModelException
      */
     protected function createModel()
     {
@@ -265,15 +267,11 @@ abstract class Wizard extends Leaf
         foreach ($model->steps as $stepName => $step) {
             $bindingKey = $step->getStepDataBindingKey() ?? $stepName;
 
-            if (!isset($model->wizardData[$stepName])) {
-                if ($bindingKey != $stepName) {
-                    $model->wizardData[$stepName] = &$model->wizardData[$bindingKey];
-                } else {
-                    $model->wizardData[$stepName] = [];
-                }
+            if (!isset($model->wizardData[$bindingKey])) {
+                $model->wizardData[$bindingKey] = [];
             }
 
-            $step->setStepData($model->wizardData[$stepName]);
+            $step->setStepData($model->wizardData[$bindingKey]);
         }
 
         return $model;
