@@ -16,11 +16,13 @@ class WizardView extends View
         parent::onStateRestored();
 
         foreach ($this->model->steps as $stepName => $step) {
-            if (!isset($this->model->wizardData[$stepName])) {
-                $this->model->wizardData[$stepName] = [];
+            $bindingKey = $step->getStepDataBindingKey() ?? $stepName;
+
+            if (!isset($model->wizardData[$bindingKey])) {
+                $this->model->wizardData[$bindingKey] = [];
             }
-            $data = &$this->model->wizardData[$stepName];
-            $step->setStepData($data);
+
+            $step->setStepData($this->model->wizardData[$bindingKey]);
         }
     }
 
